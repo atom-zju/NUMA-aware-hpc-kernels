@@ -16,6 +16,8 @@ ifdef version
   endif
 endif
 
+LIBS := $(LIBS) -lnuma
+
 all: $(OBJS)
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) $(OBJS) $(LIBS) -o $(TARGET)
 

@@ -16,6 +16,9 @@
 #include <sys/resource.h>
 #include <limits.h>
 
+// chnages from memprof paper, include libnuma
+#include <numa.h>
+
 #ifdef ENABLE_THREADS
 #include <pthread.h>
 #include "parsec_barrier.hpp"
@@ -1847,6 +1850,8 @@ void streamCluster( PStream* stream,
   float* centerBlock = (float*)malloc(centersize*dim*sizeof(float) );
   long* centerIDs = (long*)malloc(centersize*dim*sizeof(long));
 #endif
+  // changes from memprof paper, interleave mem pointed by *block*
+  numa_interleave_memory(block, chunksize*dim*sizeof(float), numa_all_nodes_ptr);
 
   if( block == NULL ) { 
     fprintf(stderr,"not enough memory for a chunk!\n");
