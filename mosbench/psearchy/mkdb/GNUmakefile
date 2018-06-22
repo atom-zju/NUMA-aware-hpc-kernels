@@ -11,7 +11,7 @@ primes.C: mkprimes
 	./mkprimes > $@
 
 pedsort: $(OBJS)
-	g++ -o $@ $(LDFLAGS) $^ -ldb -lpthread
+	g++ -o $@ $(LDFLAGS) $^ -ldb -lpthread -lnuma
 
 -include $(OBJS:.o=.d)
 

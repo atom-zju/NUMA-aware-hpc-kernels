@@ -28,6 +28,8 @@
 #include "args.h"
 #include "mkdb.h"
 
+#include <numa.h>
+
 #include <set>
 #include <vector>
 
@@ -582,8 +584,12 @@ void *dofiles(void *arg)
 
   ps.maxinfo = NBYTES/sizeof(PostIt);
   ps.maxword = NBYTES;
-  ps.wordbytes = (char *)malloc(ps.maxword);
-  ps.infobuf = (PostIt *)malloc(sizeof(PostIt)*ps.maxinfo);
+  // changes according to the memprof paper
+  // use numa_alloc_local to force allocation on different pages for different threads
+  //ps.wordbytes = (char *)malloc(ps.maxword);
+  //ps.infobuf = (PostIt *)malloc(sizeof(PostIt)*ps.maxinfo);
+  ps.wordbytes = (char *)numa_alloc_local(ps.maxword);
+  ps.infobuf = (PostIt *)numa_alloc_local(sizeof(PostIt)*ps.maxinfo);
   ps.maxhash = NBYTES/sizeof(struct Bucket);
   
 //   for (int j = 0; j < 31; j++) {
@@ -597,13 +603,20 @@ void *dofiles(void *arg)
   ps.maxhash = find_prime(ps.maxhash);
   //  printf("prime %d\n", ps.maxhash);
 
-  ps.table = (struct Bucket *)malloc(sizeof(struct Bucket) * ps.maxhash);
+  //ps.table = (struct Bucket *)malloc(sizeof(struct Bucket) * ps.maxhash);
+  // changes according to the memprof paper
+  // use numa_alloc_local to force allocation on different pages for different threads
+  ps.table = (struct Bucket *)numa_alloc_local(sizeof(struct Bucket) * ps.maxhash);
   memset(ps.table, 0, sizeof(struct Bucket) * ps.maxhash);
   ps.wordi = 0;
   ps.infoi = 0;
 
   ps.maxblocks = NBYTES/sizeof(struct Block);
-  ps.blocks = (struct Block *) malloc(ps.maxblocks * sizeof(struct Block));
+
+  //ps.blocks = (struct Block *) malloc(ps.maxblocks * sizeof(struct Block));
+  // changes according to the mmeprof paper
+  // use numa_alloc_local to force allocation on different pages for different threads
+  ps.blocks = (struct Block *)numa_alloc_local(ps.maxblocks * sizeof(struct Block));
   memset(ps.blocks, 0, ps.maxblocks * sizeof(struct Block));
   ps.blocki = 0;
   
