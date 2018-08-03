@@ -652,10 +652,15 @@ void *dofiles(void *arg)
 
   flushwords(cid, &ps, &pass0files);
 
-  delete ps.wordbytes;
-  delete ps.infobuf;
-  delete ps.blocks;
-  delete ps.table;
+  numa_free(ps.wordbytes,NBYTES);
+  numa_free(ps.infobuf, sizeof(PostIt)*(NBYTES/sizeof(PostIt)));
+  numa_free(ps.blocks, (NBYTES/sizeof(struct Block))*sizeof(struct Block));
+  numa_free(ps.table, sizeof(struct Bucket) * ps.maxhash);
+  
+  //delete ps.wordbytes;
+  //delete ps.infobuf;
+  //delete ps.blocks;
+  //delete ps.table;
 
   passN(cid, outfile, oldoutfile, pass0files);
 
